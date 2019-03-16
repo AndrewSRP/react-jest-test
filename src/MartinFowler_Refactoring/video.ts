@@ -48,6 +48,27 @@ export class Customer {
     getName(): string {
         return this._name;
     }
+    amountFor(each: Rental): number {
+        let thisAmount = 0;
+        switch (each.getMovie().getPriceCode()) {
+            case Movie.REGULAR:
+                thisAmount += 2;
+                if (each.getDaysRented() > 2) {
+                    thisAmount += (each.getDaysRented() - 2) * 1.5;
+                }
+                break;
+            case Movie.NEW_RELEASE:
+                thisAmount += each.getDaysRented() * 3;
+                break;
+            case Movie.CHILDRENS:
+                thisAmount += 1.5;
+                if (each.getDaysRented() > 3) {
+                    thisAmount += (each.getDaysRented() - 3) * 1.5;
+                }
+                break;
+        }
+        return thisAmount;
+    }
     statement(): string {
         let totalAmount = 0;
         let frequentRenterPoints = 0;
@@ -56,23 +77,7 @@ export class Customer {
         while(rentals.length) {
             let thisAmount = 0;
             const each: Rental = rentals.pop() || new Rental(new Movie('', 0), 0);
-            switch (each.getMovie().getPriceCode()) {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (each.getDaysRented() > 2) {
-                        thisAmount += (each.getDaysRented() - 2) * 1.5;
-                    }
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += each.getDaysRented() * 3;
-                    break;
-                case Movie.CHILDRENS:
-                    thisAmount += 1.5;
-                    if (each.getDaysRented() > 3) {
-                        thisAmount += (each.getDaysRented() - 3) * 1.5;
-                    }
-                    break;
-            }
+            thisAmount = this.amountFor(each);
             // 적립 포인트를 1 포인트 증가
             frequentRenterPoints++;
             // 최신물을 이틀 이상 대여하면 보너스 포인트 지급
